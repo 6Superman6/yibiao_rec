@@ -1,0 +1,52 @@
+{% extends 'layout.html' %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{{ title }}</h3>
+            </div>
+            <div class="panel-body">
+                <form method="post" enctype="multipart/form-data" novalidate>  <!-- novalidate把游览器的校验关闭 -->
+                    <!--不加会报错，这是django的校验-->
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>{{ field.label }}</label>
+                                    {{ field }}
+                                    <!--表示只显示第一个错误： field.errors.0 -->
+                                    <span style="color: red;">{{ field.errors.0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-primary">提 交</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{#{% block js %}#}
+{#    <script src="{% static 'plugins/bootstrap-datepicker/js/bootstrap-datepicker.js' %}"></script>#}
+{#    <script src="{% static 'plugins/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js' %}"></script>#}
+{#    <script src="static/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>#}
+{#    <script src="static/plugins/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>#}
+{#    <script type="text/javascript">#}
+{#        $(function () {#}
+{#            $('.dt').datepicker({#}
+{#                format: 'yyyy-mm-dd',#}
+{#                // startDate: '0',    // 表示开始时间从当前时间开始#}
+{#                language: "zh-CN",#}
+{#                autoclose: true#}
+{#            });#}
+{#        });#}
+{#    </script>#}
+{#{% endblock %}#}

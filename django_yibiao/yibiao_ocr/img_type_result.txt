@@ -1,0 +1,1 @@
+./img_test_2/9.jpg:./TemplateLib/template.jpg

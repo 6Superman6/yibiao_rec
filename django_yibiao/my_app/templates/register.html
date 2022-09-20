@@ -1,0 +1,87 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{{ title }}</h3>
+            </div>
+            <div class="panel-body">
+                <form id="FormAdd" novalidate>  <!-- novalidate把游览器的校验关闭 -->
+
+                    {% for field in form %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>{{ field.label }}</label>
+                                    {{ field }}
+                                    <!--表示只显示第一个错误： field.errors.0 -->
+                                    <span class="error-msg" style="position: absolute;color: red;"></span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <button id="btnSave" type="button" class="btn btn-primary">提 交</button>
+                    <a href="/login/" class="btn btn-primary" style="margin-left: 25px;">登 录</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+        $(function () {
+            bindBtnAddEvent();
+        })
+
+        function bindBtnAddEvent() {
+
+            $("#btnSave").click(function () {
+
+                $(".error-msg").empty();   //将内容置空
+
+                $.ajax({
+                    url: "/user/add/",
+                    type: "post",
+                    data: $("#FormAdd").serialize(),
+                    dataType: "JSON",
+                    success: function (res) {
+                        if (res.status) {
+                            alert("注册成功");
+                            // 跳转到新的接口
+                            window.location.href="/login/";
+                        } else {
+                            $.each(res.error, function (name, errorList) {
+                                // errorList是因为错误信息是一个数组
+                                // ModelForm会自动创建一个id，比如：id="id_title"
+                                // next()是下一个标签
+                                $("#id_" + name).next().text(errorList[0]);
+                            })
+                        }
+                    }
+
+                });
+            });
+        }
+
+    </script>
+{% endblock %}
+
+{#{% block js %}#}
+{#    <script src="{% static 'plugins/bootstrap-datepicker/js/bootstrap-datepicker.js' %}"></script>#}
+{#    <script src="{% static 'plugins/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js' %}"></script>#}
+{#    <script src="static/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>#}
+{#    <script src="static/plugins/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>#}
+{#    <script type="text/javascript">#}
+{#        $(function () {#}
+{#            $('.dt').datepicker({#}
+{#                format: 'yyyy-mm-dd',#}
+{#                // startDate: '0',    // 表示开始时间从当前时间开始#}
+{#                language: "zh-CN",#}
+{#                autoclose: true#}
+{#            });#}
+{#        });#}
+{#    </script>#}
+{#{% endblock %}#}

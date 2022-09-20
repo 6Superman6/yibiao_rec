@@ -1,0 +1,257 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="container">
+        <!-- 方式二 -->
+        <input id="btnAdd" type="button" value="小盖板识别" class="btn btn-success">
+
+        <a href="/well/list/" class="btn btn-success">我的上传</a>
+
+        <div class="panel panel-success" style="margin-top: 30px;">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true">识别结果</span>
+            </div>
+
+            <div id="wellResult" style="display: none; margin-top: 20px;">
+                {#                <img src="#" style="height: 200px;width: 200px;">#}
+                <h4>原图片</h4>
+                <div class="row">
+                    <div class="col-xs-6 col-md-4">
+                        <a id="img_one" href="#" class="thumbnail" target="_blank">
+                            <img id="img_scr" alt="100%x180"
+                                 style="height: 100%; width: 100%; display: block;"
+                                 src="#"
+                                 data-holder-rendered="true">
+                        </a>
+                    </div>
+                </div>
+                <h4>预测图片</h4>
+                <div class="row">
+                    <div class="col-xs-6 col-md-4">
+                        <a id="img_two" href="#" class="thumbnail" target="_blank">
+                            <img id="img_rec" alt="100%x180"
+                                 style="height: 100%; width: 100%; display: block;"
+                                 src="#"
+                                 data-holder-rendered="true">
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+{#            <div id="wellVideoResult" style="display: none; margin-top: 20px;">#}
+{#                <h4>原视频</h4>#}
+{#                <video id="yvideo" width="550" controls="controls">#}
+{#                    <source id="ymp4" src="#" type="video/mp4"/>#}
+{##}
+{#                    你的浏览器不支持该视频格式。 Your browser does not support this video format.#}
+{#                    </object>#}
+{#                </video>#}
+{##}
+{#                <h4>预测视频</h4>#}
+{#                <video id="rvideo" width="550" controls="controls">#}
+{#                    <source id="rmp4" src="#" type="video/mp4"/>#}
+{##}
+{#                    你的浏览器不支持该视频格式。 Your browser does not support this video format.#}
+{#                    </object>#}
+{#                </video>#}
+{##}
+{#            </div>#}
+
+{#            <video width="550" controls="controls">#}
+{#                <source id="yy3" src="/yibiao_ocr/yolov5_master/number/well_one.mp4" type="video/mp4"/>#}
+{##}
+{#                你的浏览器不支持该视频格式。 Your browser does not support this video format.#}
+{#                </object>#}
+{#            </video>#}
+
+
+        </div>
+
+    </div>
+
+
+    <!-- 新建或者编辑订单（对话框） -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">新建</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="FormAdd" enctype="multipart/form-data" novalidate>  <!-- novalidate把游览器的校验关闭 -->
+                        <div class="clearfix">
+                            {% for field in form %}
+                                <div class="col-xs-6">
+                                    <div class="form-group" style="position: relative;margin-bottom: 20px;">
+                                        <label>{{ field.label }}</label>
+                                        {{ field }}    <!-- ModelForm在创建表单时会自动添加id="id_xxx" -->
+                                        <span class="error-msg" style="position: absolute;color: red;"></span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            {#                            <div class="col-xs-12">#}
+                            {#                                <button id="btnAdd" type="button" class="btn btn-primary">添 加</button>#}
+                            {#                            </div>#}
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button id="btnSave" type="button" class="btn btn-primary">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+
+    <script type="text/javascript">
+
+        $(function () {
+            // 弹出添加框来
+            bindBtnAddEvent();
+            // 向后端传递数据（新建订单 & 编辑订单）
+            bindBtnSaveEvent();
+
+        })
+
+
+        function bindBtnAddEvent() {
+            $("#btnAdd").click(function () {
+
+                // 新建订单时先清空对话框中的数据
+                $("#FormAdd")[0].reset();
+                $(".error-msg").empty();   //将错误提示置空
+
+                //设置对话框标题
+                $("#myModalLabel").text("上传图片");
+
+                $("#wellResult").css("display", "none");
+                $("#wellVideoResult").css("display", "none");
+
+                // 点击新建订单按钮，显示对话框
+                $('#myModal').modal('show');
+
+            });
+        }
+
+        function bindBtnSaveEvent() {
+            $("#btnSave").click(function () {
+                {#alert("111");#}
+
+                {#$(".error-msg").empty();   //将内容置空#}
+
+                var form = document.getElementById("FormAdd");//获取表单的数据
+                var formdata = new FormData(form);//格式化表单数据
+                // 向后台发送请求（添加的Ajax请求）
+                $.ajax({
+                    url: "/well/rec/",
+                    type: "post",
+                    async: false,//同步请求
+                    processData: false,// 不处理发送的数据
+                    contentType: false,// 不设置Content-Type请求头
+                    data: formdata,
+                    dataType: "JSON",
+                    success: function (res) {
+                        if (res.status) {
+                            {#alert("添加成功");#}
+
+                            // 清空对话框中的数据
+                            $("#FormAdd")[0].reset();
+
+                            // 隐藏对话框
+                            $('#myModal').modal('hide');
+
+                            {#$("#wellResult").find("textarea").text(res.msg)#}
+
+                            {#$("#wellResult").text(res.msg)#}
+
+                            {#$("#wellResult").find("img").attr("src").val("/yibiao_ocr/"+res.url);#}
+                            {#alert("/yibiao_ocr/"+res.url);#}
+
+                            /*
+                            if (res.img_type == "mp4") {
+
+                                // 原图片
+                                {#res.url = "/yibiao_ocr/yolov5_master/number/well_one.mp4"#}
+                                $("#ymp4").attr("src", "/yibiao_ocr/" + res.url);
+                                {#$("#yvideo").load();#}
+
+
+                                // 预测图片
+                                {#res.pre_url = "/yibiao_ocr/yolov5_master/runs/detect/exp29/well_one_hou8OC9.mp4"#}
+                                $("#rmp4").attr("src", "/yibiao_ocr/" + res.pre_url);
+                                {#$("#rvideo").load();#}
+
+
+                                //var ImgSrc = document.getElementsByTagName('img');
+                                //for (var i = 0; i < ImgSrc.length; i++) {
+                                //    ImgSrc[i].src = "/yibiao_ocr/" + res.url;
+                                //}
+
+                                $("#wellVideoResult").css("display", "block");
+
+                            } else {
+                                // 原图片
+                                $("#img_scr").attr("src", "/yibiao_ocr/" + res.url);
+                                $("#img_one").attr("href", "/yibiao_ocr/" + res.url);
+
+                                // 预测图片
+                                $("#img_rec").attr("src", "/yibiao_ocr/" + res.pre_url);
+                                $("#img_two").attr("href", "/yibiao_ocr/" + res.pre_url);
+
+                                //var ImgSrc = document.getElementsByTagName('img');
+                                //for (var i = 0; i < ImgSrc.length; i++) {
+                                //    ImgSrc[i].src = "/yibiao_ocr/" + res.url;
+                                //}
+
+                                $("#wellResult").css("display", "block");
+                            }
+                            */
+
+                            // 原图片
+                            $("#img_scr").attr("src", "/yibiao_ocr/" + res.url);
+                            $("#img_one").attr("href", "/yibiao_ocr/" + res.url);
+
+                            // 预测图片
+                            $("#img_rec").attr("src", "/yibiao_ocr/" + res.pre_url);
+                            $("#img_two").attr("href", "/yibiao_ocr/" + res.pre_url);
+
+                            //var ImgSrc = document.getElementsByTagName('img');
+                            //for (var i = 0; i < ImgSrc.length; i++) {
+                            //    ImgSrc[i].src = "/yibiao_ocr/" + res.url;
+                            //}
+
+                            $("#wellResult").css("display", "block");
+
+
+                            // 用js实现页面刷新
+                            {#location.reload();#}
+
+                        } else {
+                            if (res.msg) {
+                                alert(res.msg);
+                            } else {
+                                $.each(res.error, function (name, errorList) {
+                                    // errorList是因为错误信息是一个数组
+                                    // ModelForm会自动创建一个id，比如：id="id_title"
+                                    // next()是下一个标签
+                                    $("#id_" + name).next().text(errorList[0]);
+                                })
+                            }
+
+                        }
+                    }
+                });
+            });
+        }
+
+
+    </script>
+{% endblock %}

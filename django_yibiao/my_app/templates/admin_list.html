@@ -1,0 +1,96 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="container">
+        <div style="margin-bottom: 10px;" class="clearfix">
+            {#            <a class="btn btn-success" href="#" target="_blank">  <!-- 在新的页面打开 -->#}
+            <a class="btn btn-success" href="/admin/add/">
+                <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                新建用户
+            </a>
+
+            <div style="float: right;width: 300px;">
+                <form href="/admin/list/" method="get">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="关键字"
+                               value="{{ search_data }}">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit">
+                                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                            </button>
+                        </span>
+                    </div>
+                </form>
+            </div>
+
+            {#            <a class="btn btn-success" href="/user/model/form/add/">#}
+            {#                <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>#}
+            {#                新建用户ModelForm#}
+            {#            </a>#}
+
+        </div>
+
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> 管理员列表
+            </div>
+
+            <!-- Table -->
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>用户名</th>
+                    <th>密码</th>
+                    <th>姓名</th>
+                    <th>年龄</th>
+                    <th>性别</th>
+                    <th>手机号</th>
+                    <th>用户角色</th>
+                     <th>创建时间</th>
+                    <th>重置密码</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for admin in admin_list %}
+                    <tr>
+                        <th scope="row">{{ admin.id }}</th>
+                        <td>{{ admin.username }}</td>
+{#                        <td>{{ admin.password }}</td>#}
+                        <td>{{ admin.username }}</td>
+                        <td>{{ admin.name }}</td>
+                        <td>{{ admin.age }}</td>
+                        <td>{{ admin.get_gender_display }}</td>
+                        <td>{{ admin.mobile }}</td>
+                        <td>{{ admin.get_role_display }}</td>
+                        <td>{{ admin.create_time }}</td>
+                        <td>
+                            <a href="/admin/{{ admin.id }}/reset/" class="btn btn-primary btn-xs">重置密码</a>
+                        </td>
+                        <td>
+                            <a href="/admin/{{ admin.id }}/edit/" class="btn btn-primary btn-xs">编辑</a>
+                            {#                            <a href="/admin/{{ admin.id }}/up/" class="btn btn-primary btn-xs">编辑</a>#}
+                            {#                            <a href="/admin/up/?id={{ user.id }}" class="btn btn-primary btn-xs">编辑</a>#}
+                            <a href="/admin/del/?id={{ admin.id }}" class="btn btn-danger btn-xs">删除</a>
+                        </td>
+
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+        <!-- 分页 -->
+
+        <div class="clearfix">
+            <ul class="pagination" style="float: left;">
+                {{ page_string }}
+            </ul>
+        </div>
+
+    </div>
+{% endblock %}
+

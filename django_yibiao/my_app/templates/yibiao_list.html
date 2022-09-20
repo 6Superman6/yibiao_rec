@@ -1,0 +1,94 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="container">
+
+        <div style="margin-bottom: 10px;">
+            {#            <a class="btn btn-success" href="#" target="_blank">  <!-- 在新的页面打开 -->#}
+            <a class="btn btn-success" href="/yibiao/add/">
+                <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                上传仪表
+            </a>
+        </div>
+
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> 仪表列表
+            </div>
+
+            <!-- Table -->
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>图片名称</th>
+                    <th>仪表图片</th>
+                    <th>识别结果</th>
+                    <th>用户</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for obj in queryset %}
+                    <tr>
+                        <th scope="row">{{ obj.id }}</th>
+                        <td>{{ obj.img_name }}</td>
+                        <td>
+                            <a href="/yibiao_ocr/{{ obj.img }}" target="_blank"><img src="/yibiao_ocr/{{ obj.img }}" style="height: 180px; width: 200px"></a>
+                        </td>
+                        <td>{{ obj.img_result }}</td>
+                        <td>{{ obj.admin.username }}</td>
+                        <td>
+                            <button uid="{{ obj.id }}" class="btn btn-primary btn-xs btnDetect">检测</button>
+                            <a href="/yibiao/{{ obj.id }}/del/" class="btn btn-danger btn-xs">删除</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+        <!--分页-->
+        <div class="clearfix">
+            <ul class="pagination" style="float: left;">
+                {{ page_string }}
+            </ul>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+        $(function () {
+            bindBtnDetectEvent();
+        })
+
+        function bindBtnDetectEvent() {
+            $(".btnDetect").click(function () {
+                alert("检测中，请等待...");
+                // 获取自定义的检测id
+                var uid = $(this).attr("uid");
+                $.ajax({
+                    url: "/yibiao/" + uid + "/detect/",
+                    type: "get",
+                    dataType: "JSON",
+                    success: function (res) {
+                        if (res.status) {
+                            alert("检测成功");
+
+                            // 用js实现页面刷新
+                            location.reload();
+                        } else {
+                            alert(res.msg);
+                        }
+                    }
+
+                })
+            })
+        }
+
+    </script>
+{% endblock %}
+

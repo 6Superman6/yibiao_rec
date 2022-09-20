@@ -1,0 +1,132 @@
+{% extends 'layout.html' %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container">
+
+        <div style="margin-bottom: 10px;">
+            {#            <a class="btn btn-success" href="#" target="_blank">  <!-- 在新的页面打开 -->#}
+            <a class="btn btn-success" href="/well/">
+                <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                小盖板识别
+            </a>
+        </div>
+
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> 小盖板识别列表
+            </div>
+
+            <!-- Table -->
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>id</th>
+                    <th>图片</th>
+                    <th>识别结果</th>
+                    <th>用户</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for obj in queryset %}
+                    <tr>
+                        <th scope="row">{{ obj.id }}</th>
+                        <td>
+                            <a href="/yibiao_ocr/{{ obj.imgrec }}" target="_blank"><img src="/yibiao_ocr/{{ obj.imgrec }}" style="height: 220px; width: 300px; cursor:hand;"></a>
+                        </td>
+                        <td>
+                            <a href="/yibiao_ocr/{{ obj.imgresult }}" target="_blank"><img src="/yibiao_ocr/{{ obj.imgresult }}" style="height: 220px; width: 300px; cursor:hand;"></a>
+                        </td>
+                        <td>{{ obj.admin.username }}</td>
+                        <td>
+                            <input uid="{{ obj.id }}" type="button" value="删除" class="btn btn-danger btn-xs btn-delete">
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+
+        <!--分页-->
+        <div class="clearfix">
+            <ul class="pagination" style="float: left;">
+                {{ page_string }}
+            </ul>
+        </div>
+
+    </div>
+
+    <!-- 删除订单（对话框） -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                <h4>是否确定删除?</h4>
+                <!-- margin:10px 0;   上下为10px，左右为0 -->
+                <p style="margin: 10px 0;"> 删除后，所有关联的相关数据都会被删除。</p>
+                <p style="text-align: right;">
+                    <button id="btnConfirm" type="button" class="btn btn-danger">确 定</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+
+        // 定义一个全局变量
+        var DELETE_ID;
+
+        $(function () {
+            // 弹出删除框来
+            bindBtnDeleteEvent();
+            // 删除确认框
+            bindBtnConfirmDeleteEvent();
+        })
+
+        function bindBtnDeleteEvent() {
+            $(".btn-delete").click(function () {
+                // 显示删除对话框
+                $('#deleteModal').modal('show');
+
+                // 获取当前行的uid并赋值给全局变量
+                DELETE_ID = $(this).attr("uid");
+                // console.log(DELETE_ID);
+
+            });
+        }
+
+        function bindBtnConfirmDeleteEvent() {
+            $("#btnConfirm").click(function () {
+                $.ajax({
+                    // url: "/model/" + DELETE_ID +"/del/",   // 示例：/model/12/del/
+                    url: "/well/del/",  // /ocr/del/?uid=12
+                    type: "GET",
+                    data: {
+                        uid: DELETE_ID
+                    },
+                    dataType: "JSON",
+                    success: function (res) {
+                        if (res.status) {
+                            // 删除成功，先将DELETE_ID置空
+                            DELETE_ID = 0
+                            // 删除成功直接用jS刷新页面
+                            location.reload();
+                        } else {
+                            alert(res.error);
+                        }
+                    }
+                });
+            });
+        }
+
+    </script>
+{% endblock %}
+
